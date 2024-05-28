@@ -34,10 +34,47 @@ shift
 ;;
 status)
 shift
+    result='['
+    first=true
     for i in "$@" ; do
         hash=$(echo -n "$i" | sha224sum | cut -d ' ' -f1)
-        echo "$i data usage: $(cat /etc/caddy/trojan/"$hash")"
+        if [[ -f /etc/caddy/trojan/"$hash" ]]; then
+            up=$(jq '.up' /etc/caddy/trojan/"$hash")
+            down=$(jq '.down' /etc/caddy/trojan/"$hash")
+
+            if (( up >= 1024 * 1024 * 1024 )); then
+                up_gb=$(echo "scale=2; $up / 1024 / 1024 / 1024" | bc)
+                up_str="${up_gb}GB"
+            else
+                up_mb=$(echo "scale=2; $up / 1024 / 1024" | bc)
+                up_str="${up_mb}MB"
+            fi
+
+            if (( down >= 1024 * 1024 * 1024 )); then
+                down_gb=$(echo "scale=2; $down / 1024 / 1024 / 1024" | bc)
+                down_str="${down_gb}GB"
+            else
+                down_mb=$(echo "scale=2; $down / 1024 / 1024" | bc)
+                down_str="${down_mb}MB"
+            fi
+
+            if ! $first; then
+                result+=','
+            fi
+            first=false
+
+            result+='{"user": "'$i'", "usage": {"up": "'$up_str'", "down": "'$down_str'"}}'
+        else
+            if ! $first; then
+                result+=','
+            fi
+            first=false
+
+            result+='{"user": "'$i'", "error": "No data file found"}'
+        fi
     done
+    result+=']'
+    echo $result | jq
 ;;
 rotate)
     mkdate=$(date +%Y%m%d-%H%M%S)
