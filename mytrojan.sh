@@ -44,7 +44,7 @@ shift
 
             if (( up >= 1024 * 1024 * 1024 )); then
                 up_gb=$(echo "scale=2; $up / 1024 / 1024 / 1024" | bc)
-                up_str=$(printf "%.2fGB" $up_mb)
+                up_str=$(printf "%.2fGB" $up_gb)
             else
                 up_mb=$(echo "scale=2; $up / 1024 / 1024" | bc)
                 up_str=$(printf "%.2fMB" $up_mb)
@@ -52,7 +52,7 @@ shift
 
             if (( down >= 1024 * 1024 * 1024 )); then
                 down_gb=$(echo "scale=2; $down / 1024 / 1024 / 1024" | bc)
-                down_str=$(printf "%.2fGB" $down_mb)
+                down_str=$(printf "%.2fGB" $down_gb)
             else
                 down_mb=$(echo "scale=2; $down / 1024 / 1024" | bc)
                 down_str=$(printf "%.2fMB" $down_mb)
