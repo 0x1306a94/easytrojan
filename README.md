@@ -70,7 +70,7 @@ systemctl stop caddy.service && curl https://raw.githubusercontent.com/eastmaple
 
 #### 完全卸载 ####
 ```
-systemctl stop caddy.service && systemctl disable caddy.service && rm -rf /etc/caddy /usr/local/bin/caddy /etc/systemd/system/caddy.service
+systemctl stop caddy.service && systemctl disable caddy.service && rm -rf /var/log/caddy /etc/caddy /usr/local/bin/caddy /etc/systemd/system/caddy.service
 ```
 
 ---
