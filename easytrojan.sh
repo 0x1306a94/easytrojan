@@ -85,7 +85,7 @@ cat > /etc/caddy/Caddyfile <<EOF
         protocols tls1.2 tls1.2
         ciphers TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
     }
-    
+
     log {
         level ERROR
         output file /var/log/caddy/$nip_domain.log {
@@ -106,7 +106,7 @@ cat > /etc/caddy/Caddyfile <<EOF
     redir https://{host}{uri} permanent
 }
 
-:8080, $nip_domain {
+:8080 {
     respond "Service Unavailable" 503 {
         close
     }
