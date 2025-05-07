@@ -49,6 +49,7 @@ curl -L $caddy_url | tar -zx -C /usr/local/bin caddy
 if ! id caddy &>/dev/null; then groupadd --system caddy; useradd --system -g caddy -s "$(command -v nologin)" caddy; fi
 
 mkdir -p /etc/caddy/trojan && chown -R caddy:caddy /etc/caddy && chmod 700 /etc/caddy
+mkdir -p /var/log/caddy && chown -R caddy:caddy /var/log/caddy && chmod 700 /var/log/caddy
 
 [ "$caddy_domain" != "" ] && nip_domain=$caddy_domain && rm -rf /etc/caddy/certificates
 
@@ -62,31 +63,53 @@ cat > /etc/caddy/Caddyfile <<EOF
         }
         protocols h2 h1
     }
+
     servers :80 {
         protocols h1
     }
+    
+    log {
+        output file /var/log/caddy/default.log {
+            roll_size 10MiB
+        }
+    }
+
     trojan {
         caddy
         no_proxy
     }
 }
+
 :443, $nip_domain {
     tls $address_ip@nip.io {
         protocols tls1.2 tls1.2
         ciphers TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
     }
+    
     log {
         level ERROR
+        output file /var/log/caddy/$nip_domain.log {
+            roll_size 10MiB
+        }
     }
+
     trojan {
         websocket
     }
+
     respond "Service Unavailable" 503 {
         close
     }
 }
+
 :80 {
     redir https://{host}{uri} permanent
+}
+
+:8080, $nip_domain {
+    respond "Service Unavailable" 503 {
+        close
+    }
 }
 EOF
 
